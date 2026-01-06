@@ -1,0 +1,59 @@
+1.import re
+
+def standardize_company_name(company_name: str) -> str:
+    # If the input is empty or None, return a message or empty string
+    if not company_name:
+        return "No company name provided"
+
+    # Define a mapping to handle variations of the company name
+    company_name = company_name.strip()
+
+    # Correct case for 'SoftSol', 'Solution', and other common variations
+    company_name = re.sub(r"softsol|solution", "SoftSol", company_name, flags=re.IGNORECASE)
+
+    # Handle multiple spaces and trim extra spaces
+    company_name = re.sub(r'\s+', ' ', company_name)
+
+    # Standardize 'India Pvt Limited' to 'India Pvt Ltd.'
+    company_name = re.sub(r"(india\s*pvt\s*limited)", "India Pvt Ltd.", company_name, flags=re.IGNORECASE)
+
+    # Capitalize each word except for common words like 'Ltd.'
+    company_name = ' '.join([word.capitalize() if word.lower() not in ['pvt', 'ltd'] else word.upper() for word in company_name.split()])
+
+    # Return the standardized company name
+    return company_name
+
+2.def test_standardize_company_name():
+    # Test case 1: Normal company name with multiple variations
+    result = standardize_company_name("CAF softsol")
+    assert result == "CAF SoftSol", f"Expected 'CAF SoftSol', but got {result}"
+
+    # Test case 2: Company name with 'Solution'
+    result = standardize_company_name("CAF solution")
+    assert result == "CAF SoftSol", f"Expected 'CAF SoftSol', but got {result}"
+
+    # Test case 3: Company name with 'softSolution' and extra spaces
+    result = standardize_company_name("CAF           softSolution  India Pvt Limited")
+    assert result == "CAF SoftSol India Pvt Ltd.", f"Expected 'CAF SoftSol India Pvt Ltd.', but got {result}"
+
+    # Test case 4: Empty string
+    result = standardize_company_name("")
+    assert result == "No company name provided", f"Expected 'No company name provided', but got {result}"
+
+    # Test case 5: None input
+    result = standardize_company_name(None)
+    assert result == "No company name provided", f"Expected 'No company name provided', but got {result}"
+
+    # Test case 6: Company name with extra spaces between words
+    result = standardize_company_name("    CAF      Softsol  India       Pvt       Limited    ")
+    assert result == "CAF SoftSol India Pvt Ltd.", f"Expected 'CAF SoftSol India Pvt Ltd.', but got {result}"
+
+    # Test case 7: Name with mixed case
+    result = standardize_company_name("caf soFtSoL Solution")
+    assert result == "CAF SoftSol", f"Expected 'CAF SoftSol', but got {result}"
+
+    # Test case 8: Name with all words in lowercase
+    result = standardize_company_name("caf softsol india pvt limited")
+    assert result == "CAF SoftSol India Pvt Ltd.", f"Expected 'CAF SoftSol India Pvt Ltd.', but got {result}"
+
+    print("All test cases passed!")
